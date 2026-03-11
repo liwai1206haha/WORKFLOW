@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkFlow - 日常工作记录</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- 侧边导航 -->
+    <nav class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">W</div>
+        <span>WorkFlow</span>
+      </div>
+      <ul class="nav-list">
+        <li class="nav-item active" data-tab="tasks">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          <span>事务管理</span>
+        </li>
+        <li class="nav-item" data-tab="schedule">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>排期日历</span>
+        </li>
+        <li class="nav-item" data-tab="review">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>复盘总结</span>
+        </li>
+        <li class="nav-item" data-tab="stats">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>数据统计</span>
+        </li>
+        <li class="nav-item" data-tab="notes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <span>我的笔记</span>
+        </li>
+      </ul>
+      <div class="nav-section-title">常用工具</div>
+      <ul class="nav-list nav-list-tools">
+        <li class="nav-item" data-tab="translate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
+          <span>翻译</span>
+        </li>
+        <li class="nav-item" data-tab="jsonformat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H7a2 2 0 00-2 2v5a2 2 0 01-2 2 2 2 0 012 2v5a2 2 0 002 2h1"/><path d="M16 3h1a2 2 0 012 2v5a2 2 0 002 2 2 2 0 00-2 2v5a2 2 0 01-2 2h-1"/></svg>
+          <span>JSON</span>
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <button class="btn-export" onclick="app.exportData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          导出数据
+        </button>
+        <button class="btn-import" onclick="document.getElementById('importFile').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          导入数据
+        </button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="app.importData(event)">
+      </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <!-- 事务管理 -->
+      <section class="tab-content active" id="tab-tasks">
+        <div class="page-header">
+          <h1>事务管理</h1>
+          <button class="btn-primary" onclick="app.openTaskModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            新建事务
+          </button>
+        </div>
+        <!-- 筛选栏 -->
+        <div class="filter-bar">
+          <div class="filter-group">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="todo">待办</button>
+            <button class="filter-btn" data-filter="in-progress">进行中</button>
+            <button class="filter-btn" data-filter="done">已完成</button>
+            <button class="filter-btn" data-filter="blocked">已阻塞</button>
+          </div>
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="搜索事务..." id="taskSearch" oninput="app.filterTasks()">
+          </div>
+        </div>
+        <!-- 看板视图 -->
+        <div class="kanban-board" id="kanbanBoard">
+          <div class="kanban-column" data-status="todo">
+            <div class="column-header">
+              <span class="column-dot dot-todo"></span>
+              <h3>待办</h3>
+              <span class="column-count" id="count-todo">0</span>
+            </div>
+            <div class="column-body" id="col-todo"></div>
+          </div>
+          <div class="kanban-column" data-status="in-progress">
+            <div class="column-header">
+              <span class="column-dot dot-progress"></span>
+              <h3>进行中</h3>
+              <span class="column-count" id="count-in-progress">0</span>
+            </div>
+            <div class="column-body" id="col-in-progress"></div>
+          </div>
+          <div class="kanban-column" data-status="done">
+            <div class="column-header">
+              <span class="column-dot dot-done"></span>
+              <h3>已完成</h3>
+              <span class="column-count" id="count-done">0</span>
+            </div>
+            <div class="column-body" id="col-done"></div>
+          </div>
+          <div class="kanban-column" data-status="blocked">
+            <div class="column-header">
+              <span class="column-dot dot-blocked"></span>
+              <h3>已阻塞</h3>
+              <span class="column-count" id="count-blocked">0</span>
+            </div>
+            <div class="column-body" id="col-blocked"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 排期日历 -->
+      <section class="tab-content" id="tab-schedule">
+        <div class="page-header">
+          <h1>排期日历</h1>
+          <div class="calendar-nav">
+            <button class="btn-icon" onclick="app.prevMonth()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="current-month" id="currentMonth"></span>
+            <button class="btn-icon" onclick="app.nextMonth()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <button class="btn-secondary" onclick="app.goToday()">今天</button>
+          </div>
+        </div>
+        <div class="calendar-container">
+          <div class="calendar-header-row">
+            <div class="cal-day-name">周一</div>
+            <div class="cal-day-name">周二</div>
+            <div class="cal-day-name">周三</div>
+            <div class="cal-day-name">周四</div>
+            <div class="cal-day-name">周五</div>
+            <div class="cal-day-name weekend">周六</div>
+            <div class="cal-day-name weekend">周日</div>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+      </section>
+
+      <!-- 复盘总结 -->
+      <section class="tab-content" id="tab-review">
+        <div class="page-header">
+          <h1>复盘总结</h1>
+          <button class="btn-primary" onclick="app.openReviewModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            新建复盘
+          </button>
+        </div>
+        <div class="review-filters">
+          <select id="reviewTypeFilter" onchange="app.renderReviews()">
+            <option value="all">全部类型</option>
+            <option value="daily">日复盘</option>
+            <option value="weekly">周复盘</option>
+            <option value="monthly">月复盘</option>
+            <option value="project">项目复盘</option>
+          </select>
+        </div>
+        <div class="review-list" id="reviewList"></div>
+      </section>
+
+      <!-- 数据统计 -->
+      <section class="tab-content" id="tab-stats">
+        <div class="page-header">
+          <h1>数据统计</h1>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-total">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">总事务数</span>
+              <span class="stat-value" id="statTotal">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-done">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">已完成</span>
+              <span class="stat-value" id="statDone">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-progress">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">进行中</span>
+              <span class="stat-value" id="statProgress">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-rate">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">完成率</span>
+              <span class="stat-value" id="statRate">0%</span>
+            </div>
+          </div>
+        </div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3>事务状态分布</h3>
+            <div class="chart-area" id="statusChart"></div>
+          </div>
+          <div class="chart-card">
+            <h3>优先级分布</h3>
+            <div class="chart-area" id="priorityChart"></div>
+          </div>
+        </div>
+        <div class="chart-card full-width">
+          <h3>近7天完成趋势</h3>
+          <div class="chart-area trend-chart" id="trendChart"></div>
+        </div>
+      </section>
+      <!-- 我的笔记 -->
+      <section class="tab-content" id="tab-notes">
+        <div class="page-header">
+          <h1>我的笔记</h1>
+          <button class="btn-primary" onclick="app.openNoteModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            新建笔记
+          </button>
+        </div>
+        <div class="notes-toolbar">
+          <div class="search-box notes-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="搜索笔记标题或内容..." id="noteSearch" oninput="app.renderNotes()">
+          </div>
+          <select id="noteCategoryFilter" onchange="app.renderNotes()">
+            <option value="all">全部分类</option>
+            <option value="work">工作</option>
+            <option value="study">学习</option>
+            <option value="idea">想法</option>
+            <option value="other">其他</option>
+          </select>
+          <select id="noteSortBy" onchange="app.renderNotes()">
+            <option value="updatedAt">按更新时间</option>
+            <option value="createdAt">按创建时间</option>
+            <option value="title">按标题</option>
+          </select>
+        </div>
+        <div class="notes-list" id="notesList"></div>
+      </section>
+
+      <!-- 翻译工具 -->
+      <section class="tab-content" id="tab-translate">
+        <div class="page-header">
+          <h1>翻译工具</h1>
+          <div class="translate-lang-swap">
+            <select id="translateFrom">
+              <option value="auto">自动检测</option>
+              <option value="zh">中文</option>
+              <option value="en">英语</option>
+              <option value="ja">日语</option>
+              <option value="ko">韩语</option>
+              <option value="fr">法语</option>
+              <option value="de">德语</option>
+              <option value="es">西班牙语</option>
+              <option value="ru">俄语</option>
+              <option value="pt">葡萄牙语</option>
+              <option value="it">意大利语</option>
+            </select>
+            <button class="btn-icon swap-btn" onclick="app.swapLanguages()" title="交换语言">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16l-4-4 4-4"/><path d="M3 12h18"/><path d="M17 8l4 4-4 4"/></svg>
+            </button>
+            <select id="translateTo">
+              <option value="en">英语</option>
+              <option value="zh">中文</option>
+              <option value="ja">日语</option>
+              <option value="ko">韩语</option>
+              <option value="fr">法语</option>
+              <option value="de">德语</option>
+              <option value="es">西班牙语</option>
+              <option value="ru">俄语</option>
+              <option value="pt">葡萄牙语</option>
+              <option value="it">意大利语</option>
+            </select>
+          </div>
+        </div>
+        <div class="translate-container">
+          <div class="translate-panel">
+            <div class="translate-panel-header">
+              <span class="translate-panel-label">原文</span>
+              <div class="translate-panel-actions">
+                <button class="btn-icon-sm" onclick="app.clearTranslateInput()" title="清空">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <button class="btn-icon-sm" onclick="app.pasteToTranslate()" title="粘贴">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+                </button>
+              </div>
+            </div>
+            <textarea id="translateInput" placeholder="请输入要翻译的文本..." oninput="app.onTranslateInput()"></textarea>
+            <div class="translate-panel-footer">
+              <span class="char-count" id="translateCharCount">0 字符</span>
+              <button class="btn-primary" onclick="app.doTranslate()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/></svg>
+                翻译
+              </button>
+            </div>
+          </div>
+          <div class="translate-panel translate-result-panel">
+            <div class="translate-panel-header">
+              <span class="translate-panel-label">译文</span>
+              <div class="translate-panel-actions">
+                <button class="btn-icon-sm" onclick="app.copyTranslateResult()" title="复制">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="translate-output" id="translateOutput">
+              <div class="translate-placeholder">翻译结果将显示在这里</div>
+            </div>
+          </div>
+        </div>
+        <div class="translate-history" id="translateHistory">
+          <h3>翻译历史</h3>
+          <div class="translate-history-list" id="translateHistoryList"></div>
+        </div>
+      </section>
+
+      <!-- JSON 格式化工具 -->
+      <section class="tab-content" id="tab-jsonformat">
+        <div class="page-header">
+          <h1>JSON 格式化</h1>
+          <div class="json-toolbar">
+            <select id="jsonIndent">
+              <option value="2">缩进: 2 空格</option>
+              <option value="4">缩进: 4 空格</option>
+              <option value="tab">缩进: Tab</option>
+            </select>
+          </div>
+        </div>
+        <div class="json-container">
+          <div class="json-panel">
+            <div class="json-panel-header">
+              <span class="json-panel-label">输入 JSON</span>
+              <div class="json-panel-actions">
+                <button class="btn-icon-sm" onclick="app.clearJsonInput()" title="清空">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <button class="btn-icon-sm" onclick="app.pasteToJson()" title="粘贴">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+                </button>
+                <button class="btn-icon-sm" onclick="app.loadSampleJson()" title="示例">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </button>
+              </div>
+            </div>
+            <textarea id="jsonInput" placeholder="请粘贴或输入 JSON 数据..." spellcheck="false" oninput="app.onJsonInput()"></textarea>
+            <div class="json-panel-footer">
+              <span class="json-status" id="jsonStatus"></span>
+              <div class="json-actions-group">
+                <button class="btn-secondary" onclick="app.compressJson()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                  压缩
+                </button>
+                <button class="btn-primary" onclick="app.formatJson()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M8 3H7a2 2 0 00-2 2v5a2 2 0 01-2 2 2 2 0 012 2v5a2 2 0 002 2h1"/><path d="M16 3h1a2 2 0 012 2v5a2 2 0 002 2 2 2 0 00-2 2v5a2 2 0 01-2 2h-1"/></svg>
+                  格式化
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="json-panel json-output-panel">
+            <div class="json-panel-header">
+              <span class="json-panel-label">输出结果</span>
+              <div class="json-panel-actions">
+                <button class="btn-icon-sm" onclick="app.copyJsonOutput()" title="复制">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                </button>
+                <button class="btn-icon-sm" onclick="app.downloadJson()" title="下载">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </button>
+              </div>
+            </div>
+            <pre class="json-output" id="jsonOutput"><span class="json-placeholder">格式化结果将显示在这里</span></pre>
+          </div>
+        </div>
+        <div class="json-info-bar">
+          <div class="json-info-item" id="jsonInfoSize">大小: -</div>
+          <div class="json-info-item" id="jsonInfoKeys">键数: -</div>
+          <div class="json-info-item" id="jsonInfoDepth">深度: -</div>
+          <div class="json-info-item" id="jsonInfoType">类型: -</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- 新建/编辑事务弹窗 -->
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="taskModalTitle">新建事务</h2>
+        <button class="btn-close" onclick="app.closeTaskModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="taskId">
+        <div class="form-group">
+          <label>事务名称 <span class="required">*</span></label>
+          <input type="text" id="taskName" placeholder="请输入事务名称" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>状态</label>
+            <select id="taskStatus">
+              <option value="todo">待办</option>
+              <option value="in-progress">进行中</option>
+              <option value="done">已完成</option>
+              <option value="blocked">已阻塞</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>优先级</label>
+            <select id="taskPriority">
+              <option value="low">低</option>
+              <option value="medium" selected>中</option>
+              <option value="high">高</option>
+              <option value="urgent">紧急</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>开始日期</label>
+            <input type="date" id="taskStartDate">
+          </div>
+          <div class="form-group">
+            <label>截止日期</label>
+            <input type="date" id="taskEndDate">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>标签</label>
+          <input type="text" id="taskTags" placeholder="多个标签用逗号分隔">
+        </div>
+        <div class="form-group">
+          <label>描述</label>
+          <textarea id="taskDesc" rows="4" placeholder="请输入事务描述..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="app.closeTaskModal()">取消</button>
+        <button class="btn-primary" onclick="app.saveTask()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新建/编辑复盘弹窗 -->
+  <div class="modal-overlay" id="reviewModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="reviewModalTitle">新建复盘</h2>
+        <button class="btn-close" onclick="app.closeReviewModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="reviewId">
+        <div class="form-row">
+          <div class="form-group">
+            <label>复盘类型</label>
+            <select id="reviewType">
+              <option value="daily">日复盘</option>
+              <option value="weekly">周复盘</option>
+              <option value="monthly">月复盘</option>
+              <option value="project">项目复盘</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>日期</label>
+            <input type="date" id="reviewDate">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>标题 <span class="required">*</span></label>
+          <input type="text" id="reviewTitle" placeholder="请输入复盘标题">
+        </div>
+        <div class="form-group">
+          <label>完成的工作</label>
+          <textarea id="reviewDone" rows="3" placeholder="今天/本周/本月完成了哪些工作？"></textarea>
+        </div>
+        <div class="form-group">
+          <label>遇到的问题</label>
+          <textarea id="reviewProblems" rows="3" placeholder="遇到了哪些困难或问题？"></textarea>
+        </div>
+        <div class="form-group">
+          <label>经验教训</label>
+          <textarea id="reviewLessons" rows="3" placeholder="有什么值得总结的经验或教训？"></textarea>
+        </div>
+        <div class="form-group">
+          <label>下一步计划</label>
+          <textarea id="reviewPlan" rows="3" placeholder="接下来的工作计划是什么？"></textarea>
+        </div>
+        <div class="form-group">
+          <label>自我评分</label>
+          <div class="rating-group">
+            <input type="range" id="reviewRating" min="1" max="5" value="3">
+            <span class="rating-value" id="ratingValue">3</span>
+            <span class="rating-label">/ 5</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="app.closeReviewModal()">取消</button>
+        <button class="btn-primary" onclick="app.saveReview()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 事务详情弹窗 -->
+  <div class="modal-overlay" id="taskDetailModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>事务详情</h2>
+        <button class="btn-close" onclick="app.closeTaskDetail()">&times;</button>
+      </div>
+      <div class="modal-body" id="taskDetailBody"></div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="app.closeTaskDetail()">关闭</button>
+        <button class="btn-primary" id="editTaskBtn">编辑</button>
+        <button class="btn-danger" id="deleteTaskBtn">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新建/编辑笔记弹窗 -->
+  <div class="modal-overlay" id="noteModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="noteModalTitle">新建笔记</h2>
+        <button class="btn-close" onclick="app.closeNoteModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="noteId">
+        <div class="form-group">
+          <label>标题 <span class="required">*</span></label>
+          <input type="text" id="noteTitle" placeholder="请输入笔记标题">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>分类</label>
+            <select id="noteCategory">
+              <option value="work">工作</option>
+              <option value="study">学习</option>
+              <option value="idea">想法</option>
+              <option value="other">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>标签</label>
+            <input type="text" id="noteTags" placeholder="多个标签用逗号分隔">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>内容 <span class="required">*</span></label>
+          <textarea id="noteContent" rows="12" placeholder="请输入笔记内容..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="app.closeNoteModal()">取消</button>
+        <button class="btn-primary" onclick="app.saveNote()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 笔记详情弹窗 -->
+  <div class="modal-overlay" id="noteDetailModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2>笔记详情</h2>
+        <button class="btn-close" onclick="app.closeNoteDetail()">&times;</button>
+      </div>
+      <div class="modal-body" id="noteDetailBody"></div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="app.closeNoteDetail()">关闭</button>
+        <button class="btn-primary" id="editNoteBtn">编辑</button>
+        <button class="btn-danger" id="deleteNoteBtn">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast 提示 -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
